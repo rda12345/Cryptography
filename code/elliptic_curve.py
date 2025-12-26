@@ -6,7 +6,7 @@ algorithm, based on the blog posts of Jeremy Kun
 """
 
 #TODO - add helper functions which 
-#- allow treating points as if they were lists
+# allow treating points as if they were lists
 # comparison functions to allow one to sort a list of points in lex order, or a function to transform points into more standard types like tuples and lists.
 
 
@@ -26,6 +26,7 @@ class Point(object):
     def __str__(self):
         return '(%G, %G)' %(self.x, self.y)
     
+    
         
     def __neg__(self):
         """
@@ -34,35 +35,8 @@ class Point(object):
         """
         return Point(self.curve, self.x, -self.y)
     
-    def __eq__(self, other):
-        return (self.x, self.y) == (other.x, other.y)
+   ## Arithmetic (actually application of the group operation)   
     
-    
-    def __lt__(self, other):
-        if self.x < other.x:
-            return True
-        elif self.x > other.x:
-            return False
-        else:
-            if self.y < other.y:
-                return True
-            else:
-                return False
-            
-            
-    def __gt__(self, other):
-        
-        if self.__lt__(other) == False and self.__eq__(other)== False:
-            return True
-        else: 
-            return False
-        
-        
-
-    #def __eq__(self, other):
-    #    return (self.x == other.x  and self.y == other.y)
-    
-    #program the adition of elliptic curve points
     def __add__(self, other):
         """
         Performs the group multipicaton operator 'adding' two points on the
@@ -73,7 +47,7 @@ class Point(object):
         """  
         
         # case 1: adding 0 from the right
-        if type(other) == Ideal:
+        if isinstance(other, Ideal):
             return self
         
         # case 2: adding P + (-P) = 0
@@ -101,6 +75,76 @@ class Point(object):
     def __sub__(self, other):
         """Add a point on the elliptic curve to the negative of another"""
         return self + (-other)
+    
+    
+    def __mul__(self, n: int):
+        """Performs efficient multipication by an integer"""
+        
+        # non integer scalar
+        if not isinstance(n, int):
+            raise Exception("Can only multiply by an integer")
+        
+        # multipication by 0
+        if n==0:
+            return Ideal(self.curve)
+        # if n is negative multiply the negative of self
+        elif n < 0:
+            return (-self)*(-n)
+        # n is a positive integer - implement multipication by adding
+        # P * n = b_0 * P + b_1 * P^2 +...+ b_k * 2^P
+        else: 
+            S = Ideal(self.curve)  # stores the updating sum
+            T = P # temparory variable
+            
+            # loop over all the binary digits of integer n
+            for _ in range(len(bin(n))-2):   
+                R = T if n & 1 == 1 else Ideal(self.curve)
+                S += R
+                n = n >> 1
+                T += T
+            return S
+                
+                
+    def __rmul__(self, n: int):
+        """Multipication by an integer from the left"""
+        return self * n
+        
+        
+      
+    ## Comparison 
+     
+    def __eq__(self, other):
+        return (self.x, self.y) == (other.x, other.y)
+    
+    
+    def __lt__(self, other):
+        if self.x < other.x:
+            return True
+        elif self.x > other.x:
+            return False
+        else:
+            if self.y < other.y:
+                return True
+            else:
+                return False
+            
+            
+    def __gt__(self, other):
+        
+        if self.__lt__(other) == False and self.__eq__(other)== False:
+            return True
+        else: 
+            return False
+        
+    def __ge__(self, other):
+        return self > other or self == other
+    
+    def __le___(self, other):
+        return self < other or self == other
+        
+        
+
+
     
     
     
@@ -187,11 +231,9 @@ if __name__ == "__main__":
     P = Point(c, x=frac(3), y=frac(5))
     Q = Point(c, x=frac(-2), y=frac(0))
     print(f"Substraction check: {P-Q == Point(c, frac(0, 1), frac(-2, 1))}")
-    print(f"Five additions of P {P+P+P+P+P == Point(c, frac(2312883, 1142761), frac(-3507297955, 1221611509))}")  
-    
-    ## TODO 
-    # - check the greater than and less than
-    # - check the multipication    
-    #print(f"Multipication check: {5*P == Point(c, frac(2312883, 1142761), frac(-3507297955, 1221611509))}")     
-    #print("Q-3*P: {Q-3*P == Point(c, frac(240, 1), frac(3718, 1))}")
+    print(f"Five additions of P: {P+P+P+P+P == Point(c, frac(2312883, 1142761), frac(-3507297955, 1221611509))}")  
+    print(f"Multipicatoin check: {(5*P == P + P + P + P + P)  & (5*P == P*5)}")
+    print(f"Greater than check: {(P > Q) & (P > -P)}")
+    print(f"Less than check: {(Q <= P) & (-P <= P)}")
+    print(f"Q-3*P: {Q-3*P == Point(c, frac(240, 1), frac(3718, 1))}")
     
