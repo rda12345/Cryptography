@@ -110,10 +110,12 @@ class Point(object):
     ## Comparison 
      
     def __eq__(self, other):
+        """Equality of self point to another point on the elliptic curve"""
         return (self.x, self.y) == (other.x, other.y)
     
     
     def __lt__(self, other):
+        """Less than comparison of self point to another point on the elliptic curve"""
         if self.x < other.x:
             return True
         elif self.x > other.x:
@@ -126,18 +128,22 @@ class Point(object):
             
             
     def __gt__(self, other):
-        
+        """Greater than comparison of self point to another point on the elliptic curve"""
         if self.__lt__(other) == False and self.__eq__(other)== False:
             return True
         else: 
             return False
         
+    def __le___(self, other):
+        """Less than of equal comparison of self point to another point on the elliptic curve"""
+        return self < other or self == other
+   
+        
     def __ge__(self, other):
+        """Greater than of equal comparison of self point to another point on the elliptic curve"""
         return self > other or self == other
     
-    def __le___(self, other):
-        return self < other or self == other
-        
+         
         
 
 
