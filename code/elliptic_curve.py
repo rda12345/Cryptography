@@ -5,10 +5,6 @@ Elliptic_curves - contains and implementation of the elliptic curve cryptography
 algorithm, based on the blog posts of Jeremy Kun
 """
 
-#TODO - add helper functions which 
-# allow treating points as if they were lists
-# comparison functions to allow one to sort a list of points in lex order, or a function to transform points into more standard types like tuples and lists.
-
 
 class Point(object):
     """
