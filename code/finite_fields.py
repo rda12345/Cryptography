@@ -91,7 +91,7 @@ def extendend_gcd(a, b):
     
 if __name__ == "__main__":
     
-    
+    print('------------ TESTS ------------')
     P = IntegerModPrime(3, 7)
     Q = IntegerModPrime(6, 7)
     print(f"P: {P}, Q: {Q}")
