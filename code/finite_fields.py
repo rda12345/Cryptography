@@ -11,8 +11,19 @@ After evaluatign a*x +p*y = 1 we take mod p and get a*x mod p = 1, therefore
 x is the inverse of a.
 """
 
+class DomainElement(object):
+    """
+    Introducing a class which symmetrizes left and right arithmetic operations
+    """
+    def __radd__(self, other): return self + other
+    def __rsub__(self, other): return -self + other
+    def __rmul__(self, other): return self * other
 
-class IntegerModPrime(object):
+class FieldElement(DomainElement):
+    def __truediv__(self, other): return self * other.inverse()
+    def __rtruediv__(self, other): return self.inverse() *other
+
+class IntegerModPrime(FieldElement):
     """
     Integer modular prime field elements. The class includes all the
     field arithmetic and comparison functions.
@@ -86,7 +97,17 @@ def extendend_gcd(a, b):
     return old_x, old_y, old_r
     
     
-    
+# Building a generic type system
+def typecheck(f):
+    def new_f(self, other):
+        try: self.__class__(other)
+        except TypeError:
+            raise TypeError(f"Cannot transform {other} of type {type(other)} to type {type(self)}")
+        except Exception as e:
+            raise TypeError(f"Type error on arguments {self}, {other} for function f.__name__. Reason: {e}")
+        return f(self, other)
+
+
     
     
 if __name__ == "__main__":
