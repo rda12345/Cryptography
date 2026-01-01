@@ -18,67 +18,73 @@ class DomainElement(object):
     def __radd__(self, other): return self + other
     def __rsub__(self, other): return -self + other
     def __rmul__(self, other): return self * other
+    operatorPrecedence = 1
+
 
 class FieldElement(DomainElement):
     def __truediv__(self, other): return self * other.inverse()
     def __rtruediv__(self, other): return self.inverse() *other
 
-class IntegerModPrime(FieldElement):
-    """
-    Integer modular prime field elements. The class includes all the
-    field arithmetic and comparison functions.
-    """
-    
-    def __init__(self, n, p):
-        self.n = n % p
-        self.p = p
-        
-    
-    def __add__(self, other):
-        return IntegerModPrime(self.n +other.n, self.p)
-    
-    
-    def __sub__(self, other):
-        return IntegerModPrime(self.n +other.n, self.p)
+# the IntegerModPrime is encapsulated within a function IntegerModP
+# in order to typecast of an int
+def IntegerModP(p):
+    class IntegerModPrime(FieldElement):
+        """
+        Integer modular prime field elements. The class includes all the
+        field arithmetic and comparison functions.
+        """
 
-    def __mul__(self, other):
-        return IntegerModPrime(self.n * other.n, self.p)
-        
-    def __truediv__(self, other):
-        return IntegerModPrime(self.n) * other.inverse()
-    
-    def __divmod__(self, other):
-        """
-        Returns the (quotient, remainder) of the division of self by other 
-        as IntegerModPrime numbers.
-        """
-        q, r = divmod(self.n, other.n)
-        return (IntegerModPrime(q, self.p), IntegerModPrime(r, self.p))
-    
-    def __neg__(self):
-        return IntegerModPrime(-self.n, self.p)
-        
-    def __eq__(self, other):
-        return isinstance(other, IntegerModPrime) & self.n == other.n & self.p == other.p
-    
-    def __abs__(self):
-        return abs(self.n)
-        
-    def __str__(self):
-        return f"{self.n} mod {self.p}"
-        
-    def __repr__(self):
-        return f"IntegerModPrime({self.n},{self.p})"
-    
-    
-    
-    def inverse(self):
-        x, _, _ = extendend_gcd(self.n, self.p)
-        # the algorithm may give negative integers, the following line fixes this
-        # so x is in Z_p.
-        x = x % self.p            
-        return IntegerModPrime(x, self.p)
-        
+        def __init__(self, n):
+            self.n = n % p
+            self.p = p
+
+
+        def __add__(self, other):
+            return IntegerModPrime(self.n + other.n)
+
+
+        def __sub__(self, other):
+            return IntegerModPrime(self.n + other.n)
+
+        def __mul__(self, other):
+            return IntegerModPrime(self.n * other.n)
+
+        def __truediv__(self, other):
+            return IntegerModPrime(self.n) * other.inverse()
+
+        def __divmod__(self, other):
+            """
+            Returns the (quotient, remainder) of the division of self by other
+            as IntegerModPrime numbers.
+            """
+            q, r = divmod(self.n, other.n)
+            return (IntegerModPrime(q), IntegerModPrime(r))
+
+        def __neg__(self):
+            return IntegerModPrime(-self.n)
+
+        def __eq__(self, other):
+            return isinstance(other, IntegerModPrime) & self.n == other.n & self.p == other.p
+
+        def __abs__(self):
+            return abs(self.n)
+
+        def __str__(self):
+            return f"{self.n} mod {self.p}"
+
+        def __repr__(self):
+            return f"IntegerModPrime({self.n},{self.p})"
+
+        def inverse(self):
+            x, _, _ = extendend_gcd(self.n, self.p)
+            # the algorithm may give negative integers, the following line fixes this
+            # so x is in Z_p.
+            x = x % self.p
+            return IntegerModPrime(x)
+
+    IntegerModP.p = p
+    IntegerModP.__name__ = f"Z/{p}"
+    return IntegerModPrime
     
 def extendend_gcd(a, b):
     """Returns x,y in Z such that a*x + b*y = 1"""
@@ -116,8 +122,8 @@ def typecheck(f):
 if __name__ == "__main__":
     
     print('#------------ TESTS ------------#')
-    P = IntegerModPrime(3, 7)
-    Q = IntegerModPrime(6, 7)
+    P = IntegerModP(7)(3)
+    Q = IntegerModP(7)(6)
     print(f"P: {P}, Q: {Q}")
     print(f"P + Q: {P + Q}")
     print(f"invese(P) = {P.inverse()}")
