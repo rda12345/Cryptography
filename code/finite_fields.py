@@ -100,16 +100,19 @@ def extendend_gcd(a, b):
 # Building a generic type system
 def typecheck(f):
     def new_f(self, other):
-        try: self.__class__(other)
-        except TypeError:
-            raise TypeError(f"Cannot transform {other} of type {type(other)} to type {type(self)}")
-        except Exception as e:
-            raise TypeError(f"Type error on arguments {self}, {other} for function f.__name__. Reason: {e}")
+        # checking operatorPrecedence, if other's type has precendence ignore add and perform radd of other
+        if (hasattr(other.__class__, "operatorPrecedence")) and other.__class__.operatorPrecedence > self.__class__.operatorPrecedence:
+            return NotImplemented
+        if type(self) is not type(other):
+            try: self.__class__(other)
+            except TypeError:
+                raise TypeError(f"Cannot transform {other} of type {type(other)} to type {type(self)}")
+            except Exception as e:
+                raise TypeError(f"Type error on arguments {self}, {other} for function f.__name__. Reason: {e}")
         return f(self, other)
+    return new_f
 
 
-    
-    
 if __name__ == "__main__":
     
     print('#------------ TESTS ------------#')
