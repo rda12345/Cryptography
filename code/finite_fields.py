@@ -126,9 +126,13 @@ if __name__ == "__main__":
     Q = IntegerModP(7)(6)
     print(f"P: {P}, Q: {Q}")
     print(f"P + Q: {P + Q}")
-    print(f"invese(P) = {P.inverse()}")
+    print(f"inverse(P) = {P.inverse()}")
     print(f"P == Q : {P==Q}")
     print(f"P*inverse(P): {P*P.inverse()}")
+
+
+
+
     
     
     
